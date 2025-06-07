@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React PostgreSQL Form</title>
+  <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    function App() {
+      const [name, setName] = React.useState('');
+      const [message, setMessage] = React.useState('');
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+          const res = await fetch('/api/items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setMessage(data.message);
+            setName('');
+          } else {
+            setMessage(data.error || 'Error');
+          }
+        } catch (err) {
+          setMessage('Network error');
+        }
+      };
+
+      return (
+        <div>
+          <h1>Add Item</h1>
+          <form onSubmit={handleSubmit}>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Item name"
+            />
+            <button type="submit">Add</button>
+          </form>
+          {message && <p>{message}</p>}
+        </div>
+      );
+    }
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
